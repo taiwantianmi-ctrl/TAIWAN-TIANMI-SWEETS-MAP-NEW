@@ -5,7 +5,7 @@ import { Store, Genre } from "@/types";
 import { ref as dbRef, push, set, remove, onValue, get } from "firebase/database";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
-import { X, Plus, Trash2, Edit2, Save, Lock, Search, Image as ImageIcon, Loader2, Map as MapIcon, Tag, LayoutGrid, CheckCircle, Settings, Key, ChevronLeft } from "lucide-react";
+import { X, Plus, Trash2, Edit2, Save, Lock, Search, Image as ImageIcon, Loader2, Map as MapIcon, Tag, LayoutGrid, CheckCircle, Settings, Key, ChevronLeft, Upload } from "lucide-react";
 import { useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -47,6 +47,7 @@ export function AdminPanel({
     const [dbPassword, setDbPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [editingGenre, setEditingGenre] = useState<Partial<Genre> | null>(null);
+    const [isUploadingLogo, setIsUploadingLogo] = useState(false);
 
     useEffect(() => {
         const passRef = dbRef(db, "admin/password");
@@ -86,6 +87,25 @@ export function AdminPanel({
             else await push(dbRef(db, "genres"), editingGenre);
             setEditingGenre(null);
         } catch (e) { console.error(e); }
+    };
+
+    const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setIsUploadingLogo(true);
+        try {
+            const storagePath = `admin/logo_${Date.now()}`;
+            const fileRef = storageRef(storage, storagePath);
+            await uploadBytes(fileRef, file);
+            const url = await getDownloadURL(fileRef);
+            await set(dbRef(db, "admin/logoUrl"), url);
+            alert("ロゴを更新しました！");
+        } catch (e) {
+            console.error(e);
+            alert("アップロードに失敗しました");
+        } finally {
+            setIsUploadingLogo(false);
+        }
     };
 
     const toggleGenreSelection = (genreId: string) => {
@@ -247,6 +267,21 @@ export function AdminPanel({
                                 <div className="text-left space-y-4">
                                     <input type="password" className="w-full p-4 rounded-xl bg-gray-50 border-none outline-none font-bold text-center text-sm" placeholder="新しいパスワード (4文字〜)" value={newPassword} onChange={e => setNewPassword(e.target.value)} />
                                     <button onClick={handleUpdatePassword} className="w-full py-4 rounded-xl bg-gray-800 text-white font-black shadow-lg hover:bg-black transition-all text-sm flex items-center justify-center gap-2"><Save size={18} /> パスワード更新</button>
+
+                                    <div className="pt-8 border-t border-gray-100">
+                                        <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">ショップロゴ変更</h3>
+                                        <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 rounded-2xl cursor-pointer hover:bg-gray-50 transition-all">
+                                            {isUploadingLogo ? (
+                                                <Loader2 className="animate-spin text-pink-400" />
+                                            ) : (
+                                                <div className="flex flex-col items-center">
+                                                    <Upload className="text-gray-300 mb-2" size={24} />
+                                                    <span className="text-[10px] font-bold text-gray-400">画像を選択してアップロード</span>
+                                                </div>
+                                            )}
+                                            <input type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} disabled={isUploadingLogo} />
+                                        </label>
+                                    </div>
                                 </div>
                             </motion.div>
                         )}

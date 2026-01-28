@@ -19,6 +19,7 @@ export default function Home() {
   const [googlePhotos, setGooglePhotos] = useState<string[]>([]);
   const [formStep, setFormStep] = useState<1 | 2>(1);
   const [showGenreFilter, setShowGenreFilter] = useState(false);
+  const [appLogoUrl, setAppLogoUrl] = useState<string | null>(null);
 
   // Load user stats from LocalStorage
   useEffect(() => {
@@ -30,6 +31,16 @@ export default function Home() {
         console.error("Failed to parse user stats", e);
       }
     }
+  }, []);
+
+  // Load app settings (like logo)
+  useEffect(() => {
+    const { ref, onValue } = require("firebase/database");
+    const { db } = require("@/lib/firebase");
+    const logoRef = ref(db, "admin/logoUrl");
+    onValue(logoRef, (snapshot: any) => {
+      setAppLogoUrl(snapshot.val());
+    });
   }, []);
 
   // Save user stats to LocalStorage
@@ -104,7 +115,7 @@ export default function Home() {
               animate={{ scale: 1, opacity: 1 }}
               className="w-16 h-16 md:w-24 md:h-24 bg-white rounded-2xl shadow-lg border-4 border-white overflow-hidden p-1"
             >
-              <img src="/logo.png" alt="Shop Logo" className="w-full h-full object-contain" />
+              <img src={appLogoUrl || "/logo.png"} alt="Shop Logo" className="w-full h-full object-contain" />
             </motion.div>
           </div>
         </div>
