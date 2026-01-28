@@ -66,6 +66,14 @@ export default function Home() {
     );
   };
 
+  const resetApp = () => {
+    setSelectedGenreIds([]);
+    setSelectedStore(null);
+    setShowAdmin(false);
+    setEditingStore(null);
+    setShowGenreFilter(false);
+  };
+
   const filteredStores = selectedGenreIds.length > 0
     ? stores.filter(store => store.genres?.some(gId => selectedGenreIds.includes(gId)))
     : stores;
@@ -91,11 +99,12 @@ export default function Home() {
       <div className="relative z-40 bg-white p-2 md:p-4 border-b border-gray-100">
         <div className="w-full relative flex justify-between items-start">
           <div className="max-w-4xl flex justify-between items-start gap-2 flex-1">
-            <div className="pointer-events-auto">
+            <div className="pointer-events-auto cursor-pointer">
               <motion.div
                 initial={{ x: -50, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
-                className="px-2 md:px-4 py-2 flex items-center gap-3 md:gap-4"
+                className="px-2 md:px-4 py-2 flex items-center gap-3 md:gap-4 hover:opacity-70 transition-opacity"
+                onClick={resetApp}
               >
                 <div className="w-10 h-10 md:w-12 md:h-12 bg-pastel-pink rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm text-white">
                   <Plane size={24} className="md:w-6 md:h-6" />
