@@ -6,8 +6,8 @@ import { MapContainer } from "@/components/MapContainer";
 import { StoreDetailModal } from "@/components/StoreDetailModal";
 import { AdminPanel } from "@/components/AdminPanel";
 import { Store, UserStats } from "@/types";
-import { motion } from "framer-motion";
-import { Settings, Map as MapIcon, Heart, CheckCircle, Info } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Settings, Map as MapIcon, Heart, CheckCircle, Info, LayoutGrid, ChevronLeft } from "lucide-react";
 
 export default function Home() {
   const { stores, genres, loading } = useStores();
@@ -18,6 +18,7 @@ export default function Home() {
   const [editingStore, setEditingStore] = useState<Partial<Store> | null>(null);
   const [googlePhotos, setGooglePhotos] = useState<string[]>([]);
   const [formStep, setFormStep] = useState<1 | 2>(1);
+  const [showGenreFilter, setShowGenreFilter] = useState(false);
 
   // Load user stats from LocalStorage
   useEffect(() => {
@@ -97,33 +98,74 @@ export default function Home() {
         </div>
 
         {/* Genre Filter Bar */}
-        <div className="pointer-events-auto overflow-x-auto scrollbar-none pb-2 w-full max-w-4xl mx-auto">
+        <div className="pointer-events-auto w-full max-w-4xl mx-auto px-2">
           <motion.div
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="flex gap-2 px-2"
+            className="bg-white/95 backdrop-blur-md rounded-2xl md:rounded-[2rem] shadow-xl border-2 border-white overflow-hidden"
           >
+            {/* Toggle Button */}
             <button
-              onClick={() => setSelectedGenreId(null)}
-              className={`flex-shrink-0 px-4 md:px-5 py-2 md:py-2.5 rounded-2xl text-[10px] md:text-xs font-black transition-all shadow-md whitespace-nowrap ${!selectedGenreId ? "bg-sweet-brown text-white" : "bg-white/90 backdrop-blur text-sweet-brown hover:bg-white"}`}
+              onClick={() => setShowGenreFilter(!showGenreFilter)}
+              className="w-full flex items-center justify-between px-4 py-3 md:py-4 text-sweet-brown hover:bg-gray-50/10 transition-colors"
             >
-              すべて
-            </button>
-            {genres.map(genre => (
-              <button
-                key={genre.id}
-                onClick={() => setSelectedGenreId(genre.id)}
-                className={`flex-shrink-0 flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 rounded-2xl text-[10px] md:text-xs font-black transition-all shadow-md whitespace-nowrap ${selectedGenreId === genre.id ? "bg-pastel-pink text-white ring-2 md:ring-4 ring-white" : "bg-white/90 backdrop-blur text-sweet-brown hover:bg-white"}`}
-              >
-                <div
-                  style={{ backgroundColor: genre.color || "#ffffff" }}
-                  className="w-4 h-4 md:w-5 md:h-5 rounded-md flex items-center justify-center text-[10px] md:text-xs shadow-sm"
-                >
-                  {genre.iconUrl}
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 md:w-10 md:h-10 bg-pastel-pink/20 rounded-xl flex items-center justify-center text-pink-500">
+                  <LayoutGrid size={18} />
                 </div>
-                {genre.nameJP}
-              </button>
-            ))}
+                <div className="text-left">
+                  <p className="text-[10px] font-black text-pink-400 uppercase tracking-widest leading-none mb-1">Genre Filter</p>
+                  <p className="text-xs md:text-sm font-black tracking-tighter">
+                    {selectedGenreId
+                      ? genres.find(g => g.id === selectedGenreId)?.nameJP
+                      : "すべてのジャンル"}
+                  </p>
+                </div>
+              </div>
+              <motion.div
+                animate={{ rotate: showGenreFilter ? 90 : -90 }}
+                transition={{ duration: 0.3 }}
+                className="text-gray-300"
+              >
+                <ChevronLeft size={20} />
+              </motion.div>
+            </button>
+
+            {/* Expandable Content */}
+            <AnimatePresence>
+              {showGenreFilter && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="overflow-hidden"
+                >
+                  <div className="p-3 md:p-4 border-t border-gray-100 flex flex-wrap gap-2 max-h-[40vh] overflow-y-auto scrollbar-none">
+                    <button
+                      onClick={() => { setSelectedGenreId(null); setShowGenreFilter(false); }}
+                      className={`px-4 py-2 rounded-xl text-[10px] md:text-xs font-black transition-all shadow-sm ${!selectedGenreId ? "bg-sweet-brown text-white" : "bg-gray-50 text-sweet-brown hover:bg-gray-100"}`}
+                    >
+                      すべて表示
+                    </button>
+                    {genres.map(genre => (
+                      <button
+                        key={genre.id}
+                        onClick={() => { setSelectedGenreId(genre.id); setShowGenreFilter(false); }}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] md:text-xs font-black transition-all shadow-sm ${selectedGenreId === genre.id ? "bg-pastel-pink text-white ring-2 ring-white" : "bg-gray-50 text-sweet-brown hover:bg-gray-100"}`}
+                      >
+                        <div
+                          style={{ backgroundColor: genre.color || "#ffffff" }}
+                          className="w-4 h-4 rounded flex items-center justify-center text-[10px] shadow-sm border border-white/20"
+                        >
+                          {genre.iconUrl}
+                        </div>
+                        {genre.nameJP}
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         </div>
       </div>
@@ -196,7 +238,7 @@ export default function Home() {
       >
         <button
           onClick={() => setShowAdmin(true)}
-          className="w-10 h-10 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 flex items-center justify-center text-transparent hover:text-gray-300 hover:bg-white/20 hover:border-white/30 transition-all duration-500"
+          className="w-10 h-10 rounded-full bg-transparent border border-transparent flex items-center justify-center text-transparent hover:text-gray-300 hover:bg-white/10 hover:border-white/20 transition-all duration-300"
           title="Admin Settings"
         >
           <Settings size={16} />

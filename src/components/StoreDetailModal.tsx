@@ -85,13 +85,6 @@ export function StoreDetailModal({ store, onClose, userStats, onToggleStat }: St
                     {/* Content Area */}
                     <div className="flex-1 overflow-y-auto p-6 md:p-10 space-y-6 md:space-y-8 scrollbar-none">
                         <div className="space-y-2">
-                            <div className="flex items-center gap-2">
-                                {store.genres?.slice(0, 2).map(gId => (
-                                    <span key={gId} className="px-3 py-1 bg-pastel-pink/20 text-pink-500 text-[10px] font-black rounded-full border border-pastel-pink/30 uppercase tracking-widest">
-                                        {gId}
-                                    </span>
-                                ))}
-                            </div>
                             <h2 className="text-2xl md:text-4xl font-black text-sweet-brown tracking-tighter leading-none">{store.nameJP}</h2>
                             <p className="text-sm md:text-lg font-bold text-sweet-brown/40">{store.nameCH}</p>
                         </div>
