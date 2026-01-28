@@ -97,6 +97,16 @@ export default function Home() {
               </div>
             </div>
           </div>
+          {/* Shop Logo - Top Right */}
+          <div className="pointer-events-auto flex items-center pr-2">
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="w-16 h-16 md:w-24 md:h-24 bg-white rounded-2xl shadow-lg border-4 border-white overflow-hidden p-1"
+            >
+              <img src="/logo.png" alt="Shop Logo" className="w-full h-full object-contain" />
+            </motion.div>
+          </div>
         </div>
 
         {/* Genre Filter Bar */}

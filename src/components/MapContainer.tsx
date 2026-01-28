@@ -94,6 +94,11 @@ export function MapContainer({ stores, genres, onStoreSelect, userStats, isAdmin
                 defaultZoom={8}
                 mapId={"bf51a910020faedc"}
                 disableDefaultUI={false}
+                controlSize={32}
+                streetViewControl={true}
+                zoomControl={true}
+                fullscreenControl={false}
+                mapTypeControl={false}
                 clickableIcons={false}
                 className="w-full h-full rounded-3xl overflow-hidden shadow-inner"
                 onClick={(e) => {
@@ -152,8 +157,8 @@ export function MapContainer({ stores, genres, onStoreSelect, userStats, isAdmin
                 )}
             </Map>
 
-            {/* Map Controls */}
-            <div className="absolute bottom-10 right-6 flex flex-col gap-3 pointer-events-none">
+            {/* Map Controls - Top Left */}
+            <div className={`absolute ${isAdminMode ? 'top-40 md:top-24' : 'top-4'} left-6 flex flex-col gap-3 pointer-events-none z-[10]`}>
                 <button
                     onClick={locateMe}
                     className="w-12 h-12 bg-white rounded-2xl shadow-xl flex items-center justify-center text-gray-500 hover:text-pink-500 transition-all pointer-events-auto border-4 border-white hover:scale-110 active:scale-95"
