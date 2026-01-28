@@ -153,7 +153,7 @@ export function MapContainer({ stores, genres, onStoreSelect, userStats, isAdmin
                                     </div>
                                 )}
                                 {userStats.visited.includes(store.id) && (
-                                    <div className="absolute -top-2 -left-2 bg-emerald-400 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] shadow-sm z-10">
+                                    <div className="absolute -top-2 -left-2 bg-green-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] shadow-sm z-10 font-bold border border-white">
                                         ✓
                                     </div>
                                 )}

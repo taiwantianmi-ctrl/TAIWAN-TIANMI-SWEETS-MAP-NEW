@@ -94,13 +94,13 @@ export function StoreDetailModal({ store, onClose, userStats, onToggleStat }: St
                                 onClick={() => onToggleStat("favorites", store.id)}
                                 className={`flex-1 min-w-[120px] py-3 md:py-4 rounded-2xl md:rounded-3xl border-2 font-black text-xs md:text-sm transition-all flex items-center justify-center gap-2 ${isFavorite ? "bg-pink-400 border-pink-400 text-white shadow-lg shadow-pink-100" : "bg-white border-pink-100 text-pink-400 hover:bg-pink-50"}`}
                             >
-                                <Heart size={18} fill={isFavorite ? "currentColor" : "none"} /> {isFavorite ? "お気に入り中" : "お気に入り"}
+                                <Heart size={18} fill={isFavorite ? "currentColor" : "none"} /> {isFavorite ? "御用達店から外す" : "ワタシの御用達店"}
                             </button>
                             <button
                                 onClick={() => onToggleStat("visited", store.id)}
-                                className={`flex-1 min-w-[120px] py-3 md:py-4 rounded-2xl md:rounded-3xl border-2 font-black text-xs md:text-sm transition-all flex items-center justify-center gap-2 ${isVisited ? "bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-100" : "bg-white border-emerald-100 text-emerald-500 hover:bg-emerald-50"}`}
+                                className={`flex-1 min-w-[120px] py-3 md:py-4 rounded-2xl md:rounded-3xl border-2 font-black text-xs md:text-sm transition-all flex items-center justify-center gap-2 ${isVisited ? "bg-green-500 border-green-500 text-white shadow-lg shadow-green-100" : "bg-white border-green-100 text-green-500 hover:bg-green-50"}`}
                             >
-                                <CheckCircle size={18} /> {isVisited ? "訪問済み" : "行った！"}
+                                <CheckCircle size={18} fill={isVisited ? "currentColor" : "none"} /> {isVisited ? "訪問済み！" : "行った！"}
                             </button>
                         </div>
 
