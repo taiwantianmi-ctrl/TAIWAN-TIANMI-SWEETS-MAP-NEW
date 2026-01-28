@@ -22,12 +22,17 @@ export function MapContainer({ stores, genres, onStoreSelect, userStats, isAdmin
     const [showTools, setShowTools] = useState(false);
     const toolsTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-    const triggerTools = () => {
-        setShowTools(true);
+    const triggerTools = (manualToggle = false) => {
+        if (manualToggle) {
+            setShowTools(!showTools);
+        } else {
+            setShowTools(true);
+        }
+
         if (toolsTimerRef.current) clearTimeout(toolsTimerRef.current);
         toolsTimerRef.current = setTimeout(() => {
             setShowTools(false);
-        }, 3000);
+        }, 2000);
     };
 
     useEffect(() => {
@@ -61,15 +66,24 @@ export function MapContainer({ stores, genres, onStoreSelect, userStats, isAdmin
 
     const locateMe = () => {
         if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition((position) => {
-                if (map) {
-                    map.panTo({
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    });
-                    map.setZoom(14);
-                }
-            });
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    if (map) {
+                        map.panTo({
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        });
+                        map.setZoom(16);
+                    }
+                },
+                (error) => {
+                    console.error("Geolocation error:", error);
+                    alert("現在地の取得に失敗しました。ブラウザの位置情報設定を確認してください。");
+                },
+                { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+            );
+        } else {
+            alert("お使いのブラウザは位置情報をサポートしていません。");
         }
     };
 
@@ -196,7 +210,7 @@ export function MapContainer({ stores, genres, onStoreSelect, userStats, isAdmin
 
                     {/* Movement/Trigger Icon */}
                     <button
-                        onClick={triggerTools}
+                        onClick={() => triggerTools(true)}
                         className={`w-14 h-14 rounded-3xl shadow-2xl flex items-center justify-center transition-all border-4 border-white hover:scale-110 active:scale-95 ${showTools ? 'bg-pink-400 text-white rotate-45' : 'bg-white text-gray-500 shadow-pink-100'}`}
                         title="画面移動・操作パネルを表示"
                     >
