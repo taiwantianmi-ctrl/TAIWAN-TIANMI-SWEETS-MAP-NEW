@@ -3,7 +3,7 @@
 import { Store, UserStats } from "@/types";
 import { X, Heart, CheckCircle, MapPin, Youtube, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 interface StoreDetailModalProps {
     store: Store | null;
@@ -14,8 +14,27 @@ interface StoreDetailModalProps {
 
 export function StoreDetailModal({ store, onClose, userStats, onToggleStat }: StoreDetailModalProps) {
     const [activeImageIndex, setActiveImageIndex] = useState(0);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     if (!store) return null;
+
+    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        if (!scrollContainerRef.current) return;
+        const width = scrollContainerRef.current.offsetWidth;
+        const index = Math.round(e.currentTarget.scrollLeft / width);
+        if (index !== activeImageIndex) {
+            setActiveImageIndex(index);
+        }
+    };
+
+    const scrollToImage = (index: number) => {
+        if (!scrollContainerRef.current) return;
+        const width = scrollContainerRef.current.offsetWidth;
+        scrollContainerRef.current.scrollTo({
+            left: index * width,
+            behavior: "smooth"
+        });
+    };
 
     const isFavorite = userStats.favorites.includes(store.id);
     const isVisited = userStats.visited.includes(store.id);
@@ -41,28 +60,38 @@ export function StoreDetailModal({ store, onClose, userStats, onToggleStat }: St
                     <div className="relative h-48 md:h-80 bg-gray-100 flex-shrink-0">
                         {store.images && store.images.length > 0 ? (
                             <>
-                                <img
-                                    src={store.images[activeImageIndex]}
-                                    alt={store.nameJP}
-                                    className="w-full h-full object-cover"
-                                />
+                                <div
+                                    ref={scrollContainerRef}
+                                    onScroll={handleScroll}
+                                    className="flex overflow-x-auto snap-x snap-mandatory scrollbar-none w-full h-full"
+                                >
+                                    {store.images.map((img, i) => (
+                                        <div key={i} className="flex-shrink-0 w-full h-full snap-center">
+                                            <img
+                                                src={img}
+                                                alt={`${store.nameJP} ${i + 1}`}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
                                 {store.images.length > 1 && (
-                                    <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between px-4 opacity-0 hover:opacity-100 transition-opacity">
+                                    <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between px-4 pointer-events-none">
                                         <button
-                                            onClick={(e) => { e.stopPropagation(); setActiveImageIndex((prev) => (prev > 0 ? prev - 1 : store.images.length - 1)); }}
-                                            className="w-8 h-8 md:w-10 md:h-10 bg-white/90 rounded-full flex items-center justify-center shadow-lg text-sweet-brown hover:bg-white"
+                                            onClick={(e) => { e.stopPropagation(); scrollToImage(activeImageIndex > 0 ? activeImageIndex - 1 : store.images.length - 1); }}
+                                            className="w-8 h-8 md:w-10 md:h-10 bg-white/90 rounded-full flex items-center justify-center shadow-lg text-sweet-brown hover:bg-white pointer-events-auto md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                                         >
                                             <ChevronLeft size={20} />
                                         </button>
                                         <button
-                                            onClick={(e) => { e.stopPropagation(); setActiveImageIndex((prev) => (prev < store.images.length - 1 ? prev + 1 : 0)); }}
-                                            className="w-8 h-8 md:w-10 md:h-10 bg-white/90 rounded-full flex items-center justify-center shadow-lg text-sweet-brown hover:bg-white"
+                                            onClick={(e) => { e.stopPropagation(); scrollToImage(activeImageIndex < store.images.length - 1 ? activeImageIndex + 1 : 0); }}
+                                            className="w-8 h-8 md:w-10 md:h-10 bg-white/90 rounded-full flex items-center justify-center shadow-lg text-sweet-brown hover:bg-white pointer-events-auto md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                                         >
                                             <ChevronRight size={20} />
                                         </button>
                                     </div>
                                 )}
-                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
+                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 px-3 py-1.5 bg-black/20 backdrop-blur-sm rounded-full">
                                     {store.images.map((_, i) => (
                                         <div key={i} className={`w-1.5 h-1.5 rounded-full transition-all ${i === activeImageIndex ? "bg-white w-4" : "bg-white/50"}`} />
                                     ))}
