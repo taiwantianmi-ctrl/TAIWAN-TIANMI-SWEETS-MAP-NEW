@@ -78,6 +78,78 @@ export default function Home() {
     ? stores.filter(store => store.genres?.some(gId => selectedGenreIds.includes(gId)))
     : stores;
 
+  // Common Genre Filter UI component to be reused
+  const GenreFilterUI = () => (
+    <motion.div
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      className="bg-gray-50 rounded-2xl md:rounded-[2rem] border-2 border-white shadow-sm overflow-hidden"
+    >
+      {/* Toggle Button */}
+      <button
+        onClick={() => setShowGenreFilter(!showGenreFilter)}
+        className="w-full flex items-center justify-between px-4 py-3 md:py-4 text-sweet-brown hover:bg-gray-50/10 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 md:w-10 md:h-10 bg-pastel-pink/20 rounded-xl flex items-center justify-center text-pink-500">
+            <LayoutGrid size={18} />
+          </div>
+          <div className="text-left">
+            <p className="text-[10px] font-black text-pink-400 uppercase tracking-widest leading-none mb-1">Genre Filter</p>
+            <p className="text-xs md:text-sm font-black tracking-tighter truncate max-w-[150px] md:max-w-[200px]">
+              {selectedGenreIds.length > 0
+                ? `${genres.filter(g => selectedGenreIds.includes(g.id)).map(g => g.nameJP).join(", ")}`
+                : "すべてのジャンル"}
+            </p>
+          </div>
+        </div>
+        <motion.div
+          animate={{ rotate: showGenreFilter ? 90 : -90 }}
+          transition={{ duration: 0.3 }}
+          className="text-gray-300"
+        >
+          <ChevronLeft size={20} />
+        </motion.div>
+      </button>
+
+      {/* Expandable Content */}
+      <AnimatePresence>
+        {showGenreFilter && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="p-3 md:p-4 border-t border-gray-100 flex flex-wrap gap-2 max-h-[40vh] overflow-y-auto scrollbar-none">
+              <button
+                onClick={() => { setSelectedGenreIds([]); setShowGenreFilter(false); }}
+                className={`px-4 py-2 rounded-xl text-[10px] md:text-xs font-black transition-all shadow-sm ${selectedGenreIds.length === 0 ? "bg-sweet-brown text-white" : "bg-gray-50 text-sweet-brown hover:bg-gray-100"}`}
+              >
+                すべて表示
+              </button>
+              {genres.map(genre => (
+                <button
+                  key={genre.id}
+                  onClick={() => toggleFilterGenre(genre.id)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] md:text-xs font-black transition-all shadow-sm ${selectedGenreIds.includes(genre.id) ? "bg-pastel-pink text-white ring-2 ring-white" : "bg-gray-50 text-sweet-brown hover:bg-gray-100"}`}
+                >
+                  <div
+                    style={{ backgroundColor: genre.color || "#ffffff" }}
+                    className="w-4 h-4 rounded flex items-center justify-center text-[10px] shadow-sm border border-white/20"
+                  >
+                    {genre.iconUrl}
+                  </div>
+                  {genre.nameJP}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+
   if (loading) {
     return (
       <div className="h-screen w-full flex flex-col items-center justify-center bg-pastel-pink/10">
@@ -115,16 +187,23 @@ export default function Home() {
                 </div>
               </motion.div>
 
-              <div className="mt-2 flex flex-wrap gap-2 px-2 md:px-4">
-                <div className="bg-white/90 backdrop-blur-md px-3 md:px-5 py-2 rounded-full shadow-md flex items-center gap-2 text-[10px] md:text-sm font-black text-pink-500 border border-pink-100">
-                  <Heart size={14} fill="currentColor" />
-                  <span>ワタシの御用達店</span>
-                  <span className="ml-1 bg-pink-50 px-2 py-0.5 rounded-full">{userStats.favorites.length}</span>
+              <div className="mt-2 flex flex-wrap items-start gap-2 px-2 md:px-4">
+                <div className="flex flex-wrap gap-2">
+                  <div className="bg-white/90 backdrop-blur-md px-3 md:px-5 py-2 rounded-full shadow-md flex items-center gap-2 text-[10px] md:text-sm font-black text-pink-500 border border-pink-100">
+                    <Heart size={14} fill="currentColor" />
+                    <span>ワタシの御用達店</span>
+                    <span className="ml-1 bg-pink-50 px-2 py-0.5 rounded-full">{userStats.favorites.length}</span>
+                  </div>
+                  <div className="bg-white/90 backdrop-blur-md px-3 md:px-5 py-2 rounded-full shadow-md flex items-center gap-2 text-[10px] md:text-sm font-black text-green-600 border border-green-100">
+                    <CheckCircle size={14} fill="currentColor" className="text-green-500" />
+                    <span>行った！</span>
+                    <span className="ml-1 bg-green-50 px-2 py-0.5 rounded-full">{userStats.visited.length}</span>
+                  </div>
                 </div>
-                <div className="bg-white/90 backdrop-blur-md px-3 md:px-5 py-2 rounded-full shadow-md flex items-center gap-2 text-[10px] md:text-sm font-black text-green-600 border border-green-100">
-                  <CheckCircle size={14} fill="currentColor" className="text-green-500" />
-                  <span>行った！</span>
-                  <span className="ml-1 bg-green-50 px-2 py-0.5 rounded-full">{userStats.visited.length}</span>
+
+                {/* Genre Filter Bar - PC Position */}
+                <div className="hidden md:block flex-1 max-w-md">
+                  <GenreFilterUI />
                 </div>
               </div>
             </div>
@@ -142,81 +221,14 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Genre Filter Bar */}
-        <div className="w-full max-w-4xl px-2 mt-2">
-          <motion.div
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="bg-gray-50 rounded-2xl md:rounded-[2rem] border-2 border-white shadow-sm overflow-hidden"
-          >
-            {/* Toggle Button */}
-            <button
-              onClick={() => setShowGenreFilter(!showGenreFilter)}
-              className="w-full flex items-center justify-between px-4 py-3 md:py-4 text-sweet-brown hover:bg-gray-50/10 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 md:w-10 md:h-10 bg-pastel-pink/20 rounded-xl flex items-center justify-center text-pink-500">
-                  <LayoutGrid size={18} />
-                </div>
-                <div className="text-left">
-                  <p className="text-[10px] font-black text-pink-400 uppercase tracking-widest leading-none mb-1">Genre Filter</p>
-                  <p className="text-xs md:text-sm font-black tracking-tighter">
-                    {selectedGenreIds.length > 0
-                      ? `${genres.filter(g => selectedGenreIds.includes(g.id)).map(g => g.nameJP).join(", ")}`
-                      : "すべてのジャンル"}
-                  </p>
-                </div>
-              </div>
-              <motion.div
-                animate={{ rotate: showGenreFilter ? 90 : -90 }}
-                transition={{ duration: 0.3 }}
-                className="text-gray-300"
-              >
-                <ChevronLeft size={20} />
-              </motion.div>
-            </button>
-
-            {/* Expandable Content */}
-            <AnimatePresence>
-              {showGenreFilter && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="overflow-hidden"
-                >
-                  <div className="p-3 md:p-4 border-t border-gray-100 flex flex-wrap gap-2 max-h-[40vh] overflow-y-auto scrollbar-none">
-                    <button
-                      onClick={() => { setSelectedGenreIds([]); setShowGenreFilter(false); }}
-                      className={`px-4 py-2 rounded-xl text-[10px] md:text-xs font-black transition-all shadow-sm ${selectedGenreIds.length === 0 ? "bg-sweet-brown text-white" : "bg-gray-50 text-sweet-brown hover:bg-gray-100"}`}
-                    >
-                      すべて表示
-                    </button>
-                    {genres.map(genre => (
-                      <button
-                        key={genre.id}
-                        onClick={() => toggleFilterGenre(genre.id)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] md:text-xs font-black transition-all shadow-sm ${selectedGenreIds.includes(genre.id) ? "bg-pastel-pink text-white ring-2 ring-white" : "bg-gray-50 text-sweet-brown hover:bg-gray-100"}`}
-                      >
-                        <div
-                          style={{ backgroundColor: genre.color || "#ffffff" }}
-                          className="w-4 h-4 rounded flex items-center justify-center text-[10px] shadow-sm border border-white/20"
-                        >
-                          {genre.iconUrl}
-                        </div>
-                        {genre.nameJP}
-                      </button>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
+        {/* Genre Filter Bar - Mobile Position */}
+        <div className="md:hidden w-full px-2 mt-2">
+          <GenreFilterUI />
         </div>
       </div>
 
       {/* Map Container */}
-      <div className="flex-1 p-2 bg-gray-50 min-h-[50vh] md:min-h-[150vh]">
+      <div className="flex-1 p-2 bg-gray-50 min-h-[50vh] md:min-h-[200vh]">
         <MapContainer
           stores={filteredStores}
           genres={genres}
@@ -261,19 +273,21 @@ export default function Home() {
         onToggleStat={toggleStat}
       />
 
-      {showAdmin && (
-        <AdminPanel
-          stores={stores}
-          genres={genres}
-          onClose={() => setShowAdmin(false)}
-          editingStore={editingStore}
-          setEditingStore={setEditingStore}
-          googlePhotos={googlePhotos}
-          setGooglePhotos={setGooglePhotos}
-          formStep={formStep}
-          setFormStep={setFormStep}
-        />
-      )}
+      {
+        showAdmin && (
+          <AdminPanel
+            stores={stores}
+            genres={genres}
+            onClose={() => setShowAdmin(false)}
+            editingStore={editingStore}
+            setEditingStore={setEditingStore}
+            googlePhotos={googlePhotos}
+            setGooglePhotos={setGooglePhotos}
+            formStep={formStep}
+            setFormStep={setFormStep}
+          />
+        )
+      }
 
       {/* Hidden Admin Trigger */}
       <motion.div
@@ -289,6 +303,6 @@ export default function Home() {
           <Settings size={16} />
         </button>
       </motion.div>
-    </main>
+    </main >
   );
 }
