@@ -215,7 +215,7 @@ export function AdminPanel({
                                         </div>
                                         <div className="md:col-span-2 space-y-6">
                                             <div>
-                                                <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">画像選択 (Google)</h3>
+                                                <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">画像選択 (最大4)</h3>
                                                 <div className="grid grid-cols-3 gap-2 mb-4">
                                                     {editingStore.images?.map((url, i) => <div key={i} className="relative aspect-square rounded-xl overflow-hidden border-2 border-pink-100 group"><img src={url} className="w-full h-full object-cover" /><button onClick={() => setEditingStore({ ...editingStore, images: editingStore.images?.filter((_, idx) => idx !== i) })} className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-lg opacity-0 group-hover:opacity-100"><X size={10} /></button></div>)}
                                                     {(!editingStore.images || editingStore.images.length === 0) && <div className="col-span-3 aspect-[3/1] rounded-xl border-2 border-dashed border-gray-100 flex items-center justify-center text-gray-300 text-[10px] font-black uppercase tracking-widest leading-none">未選択</div>}
@@ -224,7 +224,7 @@ export function AdminPanel({
                                                     <div className="grid grid-cols-4 gap-2 max-h-40 md:max-h-60 overflow-y-auto scrollbar-thin">
                                                         {googlePhotos.map((url, i) => {
                                                             const isSelected = editingStore.images?.includes(url);
-                                                            return <button key={i} onClick={() => { const current = editingStore.images || []; if (isSelected) setEditingStore({ ...editingStore, images: current.filter(u => u !== url) }); else if (current.length < 6) setEditingStore({ ...editingStore, images: [...current, url] }); }} className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${isSelected ? "border-blue-400" : "border-transparent"}`}><img src={url} className="w-full h-full object-cover" />{isSelected && <div className="absolute inset-0 bg-blue-500/20 flex items-center justify-center"><CheckCircle size={14} className="text-white" /></div>}</button>;
+                                                            return <button key={i} onClick={() => { const current = editingStore.images || []; if (isSelected) setEditingStore({ ...editingStore, images: current.filter(u => u !== url) }); else if (current.length < 4) setEditingStore({ ...editingStore, images: [...current, url] }); }} className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${isSelected ? "border-blue-400" : "border-transparent"}`}><img src={url} className="w-full h-full object-cover" />{isSelected && <div className="absolute inset-0 bg-blue-500/20 flex items-center justify-center"><CheckCircle size={14} className="text-white" /></div>}</button>;
                                                         })}
                                                     </div>
                                                 </div>
