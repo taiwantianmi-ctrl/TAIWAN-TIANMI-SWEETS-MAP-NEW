@@ -133,10 +133,10 @@ export function AdminPanel({
     const showSidebar = !editingStore && !editingGenre && activeTab !== "settings";
 
     return (
-        <div className="fixed inset-0 z-[100] flex flex-col bg-white/50 md:bg-transparent backdrop-blur-sm md:backdrop-blur-none transition-all overflow-hidden">
-            {/* Background Backdrop for Mobile to catch clicks */}
-            <div className="absolute inset-0 md:hidden" onClick={onClose} />
-            <header className="px-4 md:px-6 py-4 flex justify-between items-center pointer-events-auto">
+        <div className="fixed inset-0 z-[100] flex flex-col bg-slate-50 md:bg-transparent transition-all overflow-hidden">
+            {/* Background Backdrop for Mobile to catch clicks - placed at lower z-index */}
+            <div className="absolute inset-0 md:hidden bg-black/20 z-0" onClick={onClose} />
+            <header className="px-4 md:px-6 py-4 flex justify-between items-center relative z-20 pointer-events-auto shrink-0">
                 <div className="bg-white/95 md:bg-white/90 backdrop-blur-md px-4 md:px-6 py-2 rounded-2xl shadow-xl border-2 border-white flex items-center gap-2 md:gap-6">
                     <h1 className="text-sm md:text-lg font-black text-sweet-brown tracking-tighter border-r pr-3 md:pr-6 border-gray-100 hidden xs:block">管理</h1>
                     <nav className="flex gap-1">
@@ -180,7 +180,7 @@ export function AdminPanel({
                     </div>
                 </aside>
 
-                <main className="flex-1 flex flex-col items-center justify-center p-4 md:p-6 relative transition-all duration-300 overflow-hidden pointer-events-auto">
+                <main className="flex-1 flex flex-col items-center justify-center p-4 md:p-6 relative z-10 transition-all duration-300 overflow-hidden pointer-events-auto">
                     <AnimatePresence mode="wait">
                         {editingStore && formStep === 2 && (
                             <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }} className="w-full max-w-4xl bg-white shadow-2xl rounded-[2rem] md:rounded-[3rem] border-4 border-white overflow-hidden flex flex-col max-h-full pointer-events-auto">
@@ -228,22 +228,23 @@ export function AdminPanel({
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="space-y-3">
+                                            <div className="space-y-4">
                                                 <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">YouTubeリンク (最大4)</h3>
-                                                <div className="grid grid-cols-1 gap-2">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                                     {[0, 1, 2, 3].map(i => (
-                                                        <input
-                                                            key={i}
-                                                            type="text"
-                                                            className="w-full p-4 rounded-xl bg-gray-50 border-2 border-transparent focus:border-pink-200 outline-none font-bold text-xs md:text-sm transition-all pointer-events-auto shadow-sm"
-                                                            placeholder={`YouTube URL ${i + 1}`}
-                                                            value={editingStore.videos?.[i] || ""}
-                                                            onChange={e => {
-                                                                const v = [...(editingStore.videos || [])];
-                                                                v[i] = e.target.value;
-                                                                setEditingStore({ ...editingStore, videos: v });
-                                                            }}
-                                                        />
+                                                        <div key={i} className="relative">
+                                                            <input
+                                                                type="text"
+                                                                className="w-full p-4 rounded-xl bg-gray-50 border-2 border-gray-100 focus:border-pink-300 outline-none font-medium text-xs md:text-sm transition-all shadow-sm focus:bg-white"
+                                                                placeholder={`URL ${i + 1}`}
+                                                                value={editingStore.videos?.[i] || ""}
+                                                                onChange={e => {
+                                                                    const v = [...(editingStore.videos || [])];
+                                                                    v[i] = e.target.value;
+                                                                    setEditingStore({ ...editingStore, videos: v });
+                                                                }}
+                                                            />
+                                                        </div>
                                                     ))}
                                                 </div>
                                             </div>
