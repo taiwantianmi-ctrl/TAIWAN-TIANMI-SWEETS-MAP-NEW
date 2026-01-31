@@ -65,15 +65,19 @@ export function StoreDetailModal({ store, onClose, userStats, onToggleStat }: St
                                     onScroll={handleScroll}
                                     className="flex overflow-x-auto snap-x snap-mandatory scrollbar-none w-full h-full"
                                 >
-                                    {store.images.map((img, i) => (
-                                        <div key={i} className="flex-shrink-0 w-full h-full snap-center">
-                                            <img
-                                                src={img}
-                                                alt={`${store.nameJP} ${i + 1}`}
-                                                className="w-full h-full object-cover"
-                                            />
-                                        </div>
-                                    ))}
+                                    {store.images.map((img, i) => {
+                                        if (!img || typeof img !== 'string') return null;
+                                        return (
+                                            <div key={i} className="flex-shrink-0 w-full h-full snap-center bg-black flex items-center justify-center overflow-hidden">
+                                                <img
+                                                    src={img}
+                                                    alt={`${store.nameJP} ${i + 1}`}
+                                                    className="w-full h-full object-cover"
+                                                    loading="lazy"
+                                                />
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                                 {store.images.length > 1 && (
                                     <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between px-4 pointer-events-none">
