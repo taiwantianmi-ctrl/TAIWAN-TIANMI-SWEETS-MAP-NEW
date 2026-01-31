@@ -47,18 +47,19 @@ export function MapContainer({ stores, genres, onStoreSelect, userStats, isAdmin
                 renderer: {
                     render: ({ count, position }) => {
                         const div = document.createElement('div');
-                        // Use backface-visibility and will-change to prevent rendering artifacts
-                        div.className = "flex items-center justify-center w-14 h-14 cursor-pointer";
-                        div.style.backfaceVisibility = "hidden";
-                        div.style.webkitBackfaceVisibility = "hidden";
+                        div.className = "flex items-center justify-center";
+                        div.style.width = "48px";
+                        div.style.height = "48px";
+                        div.style.cursor = "pointer";
+                        div.style.transformStyle = "preserve-3d";
+                        div.style.webkitTransformStyle = "preserve-3d";
 
                         div.innerHTML = `
-                            <div class="relative w-12 h-12 bg-white rounded-full border-4 border-pink-400 flex items-center justify-center group" style="will-change: transform;">
-                                <div class="absolute -inset-1 bg-pink-50 rounded-full"></div>
-                                <div class="absolute -top-1.5 -right-1.5 bg-sweet-brown text-white text-[10px] font-black w-6 h-6 rounded-full flex items-center justify-center border-2 border-white z-10">
+                            <div style="position:relative; width:40px; height:40px; background:white; border-radius:50%; border:3px solid #FFC1CC; display:flex; align-items:center; justify-content:center; will-change:transform;">
+                                <div style="position:absolute; top:-6px; right:-6px; background:#5D4037; color:white; font-size:10px; font-weight:900; width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid white; z-index:10;">
                                     ${count}
                                 </div>
-                                <div class="text-xl z-20">🍬</div>
+                                <div style="font-size:16px;">🍬</div>
                             </div>
                         `;
                         return new google.maps.marker.AdvancedMarkerElement({
@@ -208,7 +209,6 @@ export function MapContainer({ stores, genres, onStoreSelect, userStats, isAdmin
                             position={{ lat: store.lat, lng: store.lng }}
                             ref={(marker) => {
                                 if (marker && !markers[store.id]) {
-                                    // Use multiple listener types for maximum browser/Map version compatibility
                                     const handler = () => onStoreSelect(store);
                                     marker.addListener("click", handler);
                                     marker.addEventListener("gmp-click", handler);
@@ -216,25 +216,19 @@ export function MapContainer({ stores, genres, onStoreSelect, userStats, isAdmin
                                 }
                             }}
                         >
-                            <div className={`relative group cursor-pointer transition-all duration-300 hover:scale-110 active:scale-95 ${isAdminMode ? 'opacity-80' : ''} z-10`}>
+                            <div className="relative flex items-center justify-center" style={{ willChange: 'transform', transformStyle: 'preserve-3d' }}>
                                 {userStats.favorites.includes(store.id) && (
-                                    <div className="absolute -top-2 -right-2 bg-pink-400 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] z-[110] animate-pulse">
+                                    <div className="absolute -top-1 -right-1 bg-pink-400 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] z-20">
                                         ❤
                                     </div>
                                 )}
-                                {userStats.visited.includes(store.id) && (
-                                    <div className="absolute -top-2 -left-2 bg-orange-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] z-[110] font-bold border border-white">
-                                        ✓
-                                    </div>
-                                )}
-
                                 <div
                                     style={{ backgroundColor: info.color }}
-                                    className="w-12 h-12 rounded-full border-4 border-white flex items-center justify-center text-2xl transform transition-all group-hover:rotate-12"
+                                    className="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center text-xl"
                                 >
                                     {info.icon}
                                 </div>
-                                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white/95 backdrop-blur px-3 py-1 rounded-xl border-2 border-white text-[10px] font-black whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all text-sweet-brown transform translate-y-1 group-hover:translate-y-0 z-[110]">
+                                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-white px-2 py-0.5 rounded border border-gray-100 text-[10px] font-bold whitespace-nowrap text-sweet-brown z-10">
                                     {store.nameJP}
                                 </div>
                             </div>

@@ -109,32 +109,6 @@ export function AdminPanel({
         }
     };
 
-    const handleStoreImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file || !editingStore) return;
-
-        setIsUploadingLogo(true);
-        try {
-            const fileRef = storageRef(storage, `stores/${Date.now()}_${file.name}`);
-            await uploadBytes(fileRef, file);
-            const url = await getDownloadURL(fileRef);
-
-            const currentImages = editingStore.images || [];
-            if (currentImages.length < 4) {
-                setEditingStore({
-                    ...editingStore,
-                    images: [...currentImages, url]
-                });
-            } else {
-                alert("画像は最大4枚までです");
-            }
-        } catch (error) {
-            console.error("Upload error:", error);
-            alert("アップロードに失敗しました");
-        }
-        setIsUploadingLogo(false);
-    };
-
     const fetchGooglePhotos = async () => {
         if (!placesLib || !editingStore?.nameJP) return;
         setIsUploadingLogo(true); // Reuse loading state or add new one
@@ -288,20 +262,6 @@ export function AdminPanel({
                                                             <Search size={12} strokeWidth={3} />
                                                             Google画像を取得
                                                         </button>
-                                                        <div className="relative">
-                                                            <input
-                                                                type="file"
-                                                                accept="image/*"
-                                                                onChange={handleStoreImageUpload}
-                                                                className="absolute inset-0 opacity-0 cursor-pointer"
-                                                            />
-                                                            <button
-                                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-pink-50 text-pink-600 rounded-lg text-[10px] font-black hover:bg-pink-100 transition-colors"
-                                                            >
-                                                                <Upload size={12} strokeWidth={3} />
-                                                                画像をアップロード
-                                                            </button>
-                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div className="grid grid-cols-4 gap-2 mb-4">
