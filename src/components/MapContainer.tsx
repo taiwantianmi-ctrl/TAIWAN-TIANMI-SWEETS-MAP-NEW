@@ -23,7 +23,8 @@ export function MapContainer({ stores, genres, onStoreSelect, userStats, isAdmin
     const [showTools, setShowTools] = useState(false);
     const toolsTimerRef = useRef<NodeJS.Timeout | null>(null);
     const clusterer = useRef<MarkerClusterer | null>(null);
-    const [markers, setMarkers] = useState<{ [key: string]: google.maps.marker.AdvancedMarkerElement }>({});
+    // Use a ref to track markers more reliably without causing extra renders
+    const markerElements = useRef<Map<string, google.maps.marker.AdvancedMarkerElement>>(new Map());
 
     const triggerTools = (manualToggle = false) => {
         if (manualToggle) {
@@ -69,50 +70,48 @@ export function MapContainer({ stores, genres, onStoreSelect, userStats, isAdmin
                     }
                 },
                 onClusterClick: (event, cluster, map) => {
+                    // New idea for zoom: Fit the map to all markers within the cluster
+                    // This uses Google's optimized internal bounds calculation to avoid flickering
                     if (cluster.markers && cluster.markers.length > 0) {
-                        const firstMarker = cluster.markers[0] as google.maps.marker.AdvancedMarkerElement;
-                        const pos = firstMarker.position;
-                        if (pos) {
-                            // Use moveCamera for a single smooth transition to reduce flickering
-                            map.moveCamera({
-                                center: pos,
-                                zoom: Math.max((map.getZoom() || 8) + 3, 15)
-                            });
-                            return false; // Prevent default fitBounds behavior
-                        }
+                        const bounds = new google.maps.LatLngBounds();
+                        cluster.markers.forEach(m => {
+                            const pos = (m as google.maps.marker.AdvancedMarkerElement).position;
+                            if (pos) bounds.extend(pos);
+                        });
+                        map.fitBounds(bounds, 50); // padding 50px
+                        return false;
                     }
                 }
             });
         }
     }, [map]);
 
-    // Synchronize markers state with stores data
-    useEffect(() => {
-        const storeIds = new Set(stores.map(s => s.id));
-        setMarkers(prev => {
-            const next = { ...prev };
-            let changed = false;
-            Object.keys(next).forEach(id => {
-                if (!storeIds.has(id)) {
-                    delete next[id];
-                    changed = true;
+    // Use callback for marker mounting to handle lifecycle
+    const onMarkerMount = useCallback((id: string, marker: google.maps.marker.AdvancedMarkerElement | null) => {
+        if (marker) {
+            markerElements.current.set(id, marker);
+            if (clusterer.current) {
+                clusterer.current.addMarkers([marker]);
+            }
+        } else {
+            const oldMarker = markerElements.current.get(id);
+            if (oldMarker) {
+                if (clusterer.current) {
+                    clusterer.current.removeMarkers([oldMarker]);
                 }
-            });
-            return changed ? next : prev;
-        });
-    }, [stores]);
+                markerElements.current.delete(id);
+            }
+        }
+    }, []);
 
-    // Update markers in clusterer
+    // Ensure clusterer is synced if stores list changes
     useEffect(() => {
         if (clusterer.current) {
             clusterer.current.clearMarkers();
-            // Map markers to the ones that still exist in our stores list
-            const activeMarkers = stores
-                .map(s => markers[s.id])
-                .filter((m): m is google.maps.marker.AdvancedMarkerElement => m !== undefined);
+            const activeMarkers = Array.from(markerElements.current.values());
             clusterer.current.addMarkers(activeMarkers);
         }
-    }, [markers, stores]);
+    }, [stores]);
 
     useEffect(() => {
         if (!placesLib || !inputRef.current || !map || !isAdminMode) return;
@@ -223,30 +222,39 @@ export function MapContainer({ stores, genres, onStoreSelect, userStats, isAdmin
                         <AdvancedMarker
                             key={store.id}
                             position={{ lat: store.lat, lng: store.lng }}
-                            ref={(marker) => {
-                                if (marker) {
-                                    if (!markers[store.id]) {
-                                        const handler = () => onStoreSelect(store);
-                                        marker.addListener("click", handler);
-                                        marker.addEventListener("gmp-click", handler);
-                                        setMarkers(prev => ({ ...prev, [store.id]: marker }));
-                                    }
-                                }
-                            }}
+                            ref={(marker) => onMarkerMount(store.id, marker)}
+                            onClick={() => onStoreSelect(store)}
                         >
-                            <div className="relative flex items-center justify-center" style={{ willChange: 'transform', transformStyle: 'preserve-3d' }}>
-                                {userStats.favorites.includes(store.id) && (
-                                    <div className="absolute -top-1 -right-1 bg-pink-400 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] z-20">
-                                        ❤
-                                    </div>
-                                )}
+                            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 <div
-                                    style={{ backgroundColor: info.color }}
-                                    className="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center text-xl"
+                                    style={{
+                                        backgroundColor: info.color,
+                                        width: '32px',
+                                        height: '32px',
+                                        borderRadius: '50%',
+                                        border: '2px solid white',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '16px'
+                                    }}
                                 >
                                     {info.icon}
                                 </div>
-                                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-white px-2 py-0.5 rounded border border-gray-100 text-[10px] font-bold whitespace-nowrap text-sweet-brown z-10">
+                                <div
+                                    style={{
+                                        position: 'absolute',
+                                        top: '100%',
+                                        backgroundColor: 'white',
+                                        padding: '1px 4px',
+                                        borderRadius: '4px',
+                                        fontSize: '9px',
+                                        fontWeight: 'bold',
+                                        whiteSpace: 'nowrap',
+                                        marginTop: '1px',
+                                        border: '1px solid #eee'
+                                    }}
+                                >
                                     {store.nameJP}
                                 </div>
                             </div>
