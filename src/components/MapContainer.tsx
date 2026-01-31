@@ -62,6 +62,17 @@ export function MapContainer({ stores, genres, onStoreSelect, userStats, isAdmin
                             content: div,
                         });
                     }
+                },
+                onClusterClick: (event, cluster, map) => {
+                    if (cluster.markers && cluster.markers.length > 0) {
+                        const firstMarker = cluster.markers[0] as google.maps.marker.AdvancedMarkerElement;
+                        const pos = firstMarker.position;
+                        if (pos) {
+                            map.panTo(pos);
+                            map.setZoom(Math.max((map.getZoom() || 8) + 3, 15));
+                            return false; // Prevent default fitBounds behavior
+                        }
+                    }
                 }
             });
         }
