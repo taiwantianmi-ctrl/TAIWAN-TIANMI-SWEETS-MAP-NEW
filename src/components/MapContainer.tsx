@@ -177,7 +177,7 @@ export function MapContainer({ stores, genres, onStoreSelect, userStats, isAdmin
 
             <Map
                 defaultCenter={{ lat: 23.6978, lng: 120.9605 }}
-                defaultZoom={8}
+                defaultZoom={7}
                 mapId={"bf51a910020faedc"}
                 disableDefaultUI={true} // カスタマイズのため一度無効化
                 streetViewControl={true}
