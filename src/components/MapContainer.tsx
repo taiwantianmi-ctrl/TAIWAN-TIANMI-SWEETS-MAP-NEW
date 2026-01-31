@@ -47,11 +47,15 @@ export function MapContainer({ stores, genres, onStoreSelect, userStats, isAdmin
                 renderer: {
                     render: ({ count, position }) => {
                         const div = document.createElement('div');
+                        // Use backface-visibility and will-change to prevent rendering artifacts
                         div.className = "flex items-center justify-center w-14 h-14 cursor-pointer";
+                        div.style.backfaceVisibility = "hidden";
+                        div.style.webkitBackfaceVisibility = "hidden";
+
                         div.innerHTML = `
-                            <div class="relative w-12 h-12 bg-white rounded-full border-4 border-pink-400 shadow-2xl flex items-center justify-center group">
-                                <div class="absolute -inset-1 bg-pink-100/50 rounded-full transition-transform group-hover:scale-110"></div>
-                                <div class="absolute -top-1.5 -right-1.5 bg-sweet-brown text-white text-[10px] font-black w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow-md z-10">
+                            <div class="relative w-12 h-12 bg-white rounded-full border-4 border-pink-400 flex items-center justify-center group" style="will-change: transform;">
+                                <div class="absolute -inset-1 bg-pink-50 rounded-full"></div>
+                                <div class="absolute -top-1.5 -right-1.5 bg-sweet-brown text-white text-[10px] font-black w-6 h-6 rounded-full flex items-center justify-center border-2 border-white z-10">
                                     ${count}
                                 </div>
                                 <div class="text-xl z-20">🍬</div>
@@ -161,7 +165,7 @@ export function MapContainer({ stores, genres, onStoreSelect, userStats, isAdmin
     };
 
     return (
-        <div className="w-full h-full relative">
+        <div className="w-full h-full relative bg-white">
             {/* Admin Search Overlay */}
             {isAdminMode && (
                 <div className="absolute top-20 md:top-4 left-1/2 -translate-x-1/2 z-[20] w-full max-w-md px-4 pointer-events-none">
@@ -214,23 +218,23 @@ export function MapContainer({ stores, genres, onStoreSelect, userStats, isAdmin
                         >
                             <div className={`relative group cursor-pointer transition-all duration-300 hover:scale-110 active:scale-95 ${isAdminMode ? 'opacity-80' : ''} z-10`}>
                                 {userStats.favorites.includes(store.id) && (
-                                    <div className="absolute -top-2 -right-2 bg-pink-400 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] shadow-sm z-[110] animate-pulse">
+                                    <div className="absolute -top-2 -right-2 bg-pink-400 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] z-[110] animate-pulse">
                                         ❤
                                     </div>
                                 )}
                                 {userStats.visited.includes(store.id) && (
-                                    <div className="absolute -top-2 -left-2 bg-orange-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] shadow-sm z-[110] font-bold border border-white">
+                                    <div className="absolute -top-2 -left-2 bg-orange-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] z-[110] font-bold border border-white">
                                         ✓
                                     </div>
                                 )}
 
                                 <div
                                     style={{ backgroundColor: info.color }}
-                                    className="w-12 h-12 rounded-full border-4 border-white shadow-xl flex items-center justify-center text-2xl transform transition-all group-hover:rotate-12 group-hover:shadow-2xl"
+                                    className="w-12 h-12 rounded-full border-4 border-white flex items-center justify-center text-2xl transform transition-all group-hover:rotate-12"
                                 >
                                     {info.icon}
                                 </div>
-                                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white/95 backdrop-blur px-3 py-1 rounded-xl shadow-lg border-2 border-white text-[10px] font-black whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all text-sweet-brown transform translate-y-1 group-hover:translate-y-0 z-[110]">
+                                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white/95 backdrop-blur px-3 py-1 rounded-xl border-2 border-white text-[10px] font-black whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all text-sweet-brown transform translate-y-1 group-hover:translate-y-0 z-[110]">
                                     {store.nameJP}
                                 </div>
                             </div>
