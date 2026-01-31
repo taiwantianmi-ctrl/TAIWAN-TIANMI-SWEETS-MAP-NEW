@@ -74,6 +74,7 @@ export function StoreDetailModal({ store, onClose, userStats, onToggleStat }: St
                                                     alt={`${store.nameJP} ${i + 1}`}
                                                     className="w-full h-full object-cover"
                                                     loading="lazy"
+                                                    referrerPolicy="no-referrer"
                                                 />
                                             </div>
                                         );
